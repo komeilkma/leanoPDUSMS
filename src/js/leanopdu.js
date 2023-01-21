@@ -28,3 +28,35 @@ function intToBin(x, size) {
 	}
 	return bin;
 }
+
+function HexToNum(numberS) 
+{
+	var tens = MakeNum(numberS.substring(0,1));
+	
+	var ones = 0;
+	if(numberS.length > 1)
+		ones=MakeNum(numberS.substring(1,2));
+	if(ones == 'X') 
+	{
+		return "00";
+	}
+	return  (tens * 16) + (ones * 1);
+}
+
+function MakeNum(str) 
+{
+	if((str >= '0') && (str <= '10')) //check
+		return str;
+	switch(str.toUpperCase()) 
+	{
+		case "A": return 10;
+		case "B": return 11;
+		case "C": return 12;
+		case "D": return 13;
+		case "E": return 14;
+		case "F": return 15;
+		default:
+		return 16;
+   	}
+	return 16;
+}
