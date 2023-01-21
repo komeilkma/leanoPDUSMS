@@ -1,0 +1,13 @@
+
+read POST_STRING
+
+#ipremote=`echo $HTTP_REFERER | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'  `
+if type $POST_STRING 2>/dev/null | grep -q 'function'
+then
+   $POST_STRING
+else 
+    json='{"status":"'"error"'","code":"'"401"'","message":"'"shell command WTF?:)))"'"}'
+	echo ""
+    echo $json
+fi
+
