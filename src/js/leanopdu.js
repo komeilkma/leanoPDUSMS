@@ -42,7 +42,7 @@ function HexToNum(numberS) {
 }
 
 function MakeNum(str) {
-	if ((str >= '0') && (str <= '10')) //check
+	if ((str >= '0') && (str <= '9')) 
 		return str;
 	switch (str.toUpperCase()) {
 		case "A":
@@ -61,6 +61,32 @@ function MakeNum(str) {
 			return 16;
 	}
 	return 16;
+}
+
+function phoneNumberMap(character)
+{
+	if((character >= '0') && (character <= '9'))
+	{
+		return character;
+	}
+	switch(character.toUpperCase())
+	{
+		case '*':
+			return 'A';
+		case '#':
+			return 'B';
+		case 'A':
+			return 'C';
+		case 'B':
+			return 'D';
+		case 'C':
+			return 'E';
+		case '+':
+			return '+'; 
+		default:
+			return 'F';
+	}
+	return 'F';
 }
 
 function intToHex(i) 
