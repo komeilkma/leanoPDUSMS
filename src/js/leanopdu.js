@@ -28,3 +28,103 @@ function intToBin(x, size) {
 	}
 	return bin;
 }
+
+function HexToNum(numberS) {
+	var tens = MakeNum(numberS.substring(0, 1));
+
+	var ones = 0;
+	if (numberS.length > 1)
+		ones = MakeNum(numberS.substring(1, 2));
+	if (ones == 'X') {
+		return "00";
+	}
+	return (tens * 16) + (ones * 1);
+}
+
+function MakeNum(str) {
+	if ((str >= '0') && (str <= '9')) 
+		return str;
+	switch (str.toUpperCase()) {
+		case "A":
+			return 10;
+		case "B":
+			return 11;
+		case "C":
+			return 12;
+		case "D":
+			return 13;
+		case "E":
+			return 14;
+		case "F":
+			return 15;
+		default:
+			return 16;
+	}
+	return 16;
+}
+
+function phoneNumberMap(character)
+{
+	if((character >= '0') && (character <= '9'))
+	{
+		return character;
+	}
+	switch(character.toUpperCase())
+	{
+		case '*':
+			return 'A';
+		case '#':
+			return 'B';
+		case 'A':
+			return 'C';
+		case 'B':
+			return 'D';
+		case 'C':
+			return 'E';
+		case '+':
+			return '+'; 
+		default:
+			return 'F';
+	}
+	return 'F';
+}
+
+function intToHex(i) 
+{
+	var sHex = "0123456789ABCDEF";
+	h = "";
+	i = parseInt(i);
+	for (j = 0; j <= 3; j++) {
+		h += sHex.charAt((i >> (j * 8 + 4)) & 0x0F) +
+			sHex.charAt((i >> (j * 8)) & 0x0F);
+	}
+	return h.substring(0, 2);
+}
+
+function ToHex(i) {
+	var sHex = "0123456789ABCDEF";
+	var Out = "";
+	Out = sHex.charAt(i & 0xf);
+	i >>= 4;
+	Out = sHex.charAt(i & 0xf) + Out;
+	return Out;
+}
+
+function getSevenBit(character) 
+{
+	for (var i = 0; i < sevenbitdefault.length; i++) {
+		if (sevenbitdefault[i] == character) {
+			return i;
+		}
+	}
+	alert("No 7 bit char for " + character);
+	return 0;
+}
+
+function getEightBit(character) {
+	return character;
+}
+
+function get16Bit(character) {
+	return character;
+}
