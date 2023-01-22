@@ -159,3 +159,59 @@ function semiOctetToString(inp)
 	}
 	return out;
 }
+
+function getUserMessage(input,truelength)
+{
+	var byteString = "";
+	octetArray = new Array();
+	restArray = new Array();
+	septetsArray = new Array();
+	var s=1;
+	var count = 0;
+	var matchcount = 0; 
+	var smsMessage = "";	
+	for(var i=0;i<input.length;i=i+2)
+	{
+		var hex = input.substring(i,i+2);
+		byteString = byteString + intToBin(HexToNum(hex),8);
+		 
+	}
+	for(var i=0;i<byteString.length;i=i+8)
+	{
+		octetArray[count] = byteString.substring(i,i+8);
+		restArray[count] = octetArray[count].substring(0,(s%8));
+		septetsArray[count] = octetArray[count].substring((s%8),8);
+		s++;
+        	count++;
+		if(s == 8)
+		{
+			s = 1;
+		}
+	}
+
+		
+	for(var i=0;i<restArray.length;i++)
+	{
+		if(i%7 == 0)
+		{	
+			if(i != 0)
+			{
+				smsMessage = smsMessage + sevenbitdefault[binToInt(restArray[i-1])];
+				matchcount ++; 
+			}
+				smsMessage = smsMessage + sevenbitdefault[binToInt(septetsArray[i])];
+				matchcount ++; 
+		}
+		else
+		{
+				smsMessage = smsMessage +  sevenbitdefault[binToInt(septetsArray[i]+restArray[i-1])];
+				matchcount ++; 
+		}
+	}
+	if(matchcount != truelength) 
+	{
+		smsMessage = smsMessage + sevenbitdefault[binToInt(restArray[i-1])];
+
+	}
+	return smsMessage;
+}
