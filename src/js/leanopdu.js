@@ -89,6 +89,26 @@ function phoneNumberMap(character)
 	return 'F';
 }
 
+
+function phoneNumberUnMap(chararacter)
+{
+	if((chararacter >= '0') && (chararacter <= '9'))
+	{
+		return chararacter;
+	}
+	switch(chararacter)
+	{
+		case 10: return '*';
+		case 11: return '#';
+		case 12: return 'A';
+		case 13: return 'B';
+		case 14: return 'C';
+		default:
+			return 'F';
+	}
+	return 'F';
+}
+
 function intToHex(i) 
 {
 	var sHex = "0123456789ABCDEF";
@@ -127,4 +147,15 @@ function getEightBit(character) {
 
 function get16Bit(character) {
 	return character;
+}
+
+function semiOctetToString(inp)
+{
+	var out = "";	
+	for(var i=0;i<inp.length;i=i+2)
+	{
+	  	var temp = inp.substring(i,i+2);	
+		out = out + phoneNumberMap(temp.charAt(1)) + phoneNumberMap(temp.charAt(0));
+	}
+	return out;
 }
