@@ -89,6 +89,26 @@ function phoneNumberMap(character)
 	return 'F';
 }
 
+
+function phoneNumberUnMap(chararacter)
+{
+	if((chararacter >= '0') && (chararacter <= '9'))
+	{
+		return chararacter;
+	}
+	switch(chararacter)
+	{
+		case 10: return '*';
+		case 11: return '#';
+		case 12: return 'A';
+		case 13: return 'B';
+		case 14: return 'C';
+		default:
+			return 'F';
+	}
+	return 'F';
+}
+
 function intToHex(i) 
 {
 	var sHex = "0123456789ABCDEF";
@@ -127,4 +147,71 @@ function getEightBit(character) {
 
 function get16Bit(character) {
 	return character;
+}
+
+function semiOctetToString(inp)
+{
+	var out = "";	
+	for(var i=0;i<inp.length;i=i+2)
+	{
+	  	var temp = inp.substring(i,i+2);	
+		out = out + phoneNumberMap(temp.charAt(1)) + phoneNumberMap(temp.charAt(0));
+	}
+	return out;
+}
+
+function getUserMessage(input,truelength)
+{
+	var byteString = "";
+	octetArray = new Array();
+	restArray = new Array();
+	septetsArray = new Array();
+	var s=1;
+	var count = 0;
+	var matchcount = 0; 
+	var smsMessage = "";	
+	for(var i=0;i<input.length;i=i+2)
+	{
+		var hex = input.substring(i,i+2);
+		byteString = byteString + intToBin(HexToNum(hex),8);
+		 
+	}
+	for(var i=0;i<byteString.length;i=i+8)
+	{
+		octetArray[count] = byteString.substring(i,i+8);
+		restArray[count] = octetArray[count].substring(0,(s%8));
+		septetsArray[count] = octetArray[count].substring((s%8),8);
+		s++;
+        	count++;
+		if(s == 8)
+		{
+			s = 1;
+		}
+	}
+
+		
+	for(var i=0;i<restArray.length;i++)
+	{
+		if(i%7 == 0)
+		{	
+			if(i != 0)
+			{
+				smsMessage = smsMessage + sevenbitdefault[binToInt(restArray[i-1])];
+				matchcount ++; 
+			}
+				smsMessage = smsMessage + sevenbitdefault[binToInt(septetsArray[i])];
+				matchcount ++; 
+		}
+		else
+		{
+				smsMessage = smsMessage +  sevenbitdefault[binToInt(septetsArray[i]+restArray[i-1])];
+				matchcount ++; 
+		}
+	}
+	if(matchcount != truelength) 
+	{
+		smsMessage = smsMessage + sevenbitdefault[binToInt(restArray[i-1])];
+
+	}
+	return smsMessage;
 }
