@@ -215,3 +215,29 @@ function getUserMessage(input,truelength)
 	}
 	return smsMessage;
 }
+
+function getUserMessage16(input,truelength)
+{
+	var smsMessage = "";	
+	calculation = "Not implemented";
+	for(var i=0;i<input.length;i=i+4)
+	{
+		var hex1 = input.substring(i,i+2);
+		var hex2 = input.substring(i+2,i+4);
+		smsMessage += "" + String.fromCharCode(HexToNum(hex1)*256+HexToNum(hex2));
+	}
+	
+	return smsMessage;
+}
+
+function getUserMessage8(input,truelength)
+{
+	var smsMessage = "";	
+	calculation = "Not implemented";
+	for(var i=0;i<input.length;i=i+2)
+	{
+		var hex = input.substring(i,i+2);
+		smsMessage += "" + String.fromCharCode(HexToNum(hex));
+	}
+	return smsMessage;
+}
