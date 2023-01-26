@@ -241,3 +241,245 @@ function getUserMessage8(input,truelength)
 	}
 	return smsMessage;
 }
+
+
+function getPDUMetaInfo(inp) {
+	var PDUString = inp;
+	var start = 0;
+	var out = "";
+
+	if (PDUString.substr(0, 2) == "AT") {
+		for (var i = 0; i < PDUString.length; i++) {
+			if (PDUString.charCodeAt(i) == 10) {
+				PDUString = PDUString.substr(i + 1);
+				break;
+			}
+		}
+	}
+
+	var NewPDU = "";
+	for (var i = 0; i < PDUString.length; i++) {
+		if (MakeNum(PDUString.substr(i, 1)) != 16) {
+			NewPDU = NewPDU + PDUString.substr(i, 1);
+		}
+	}
+	PDUString = NewPDU;
+
+	var SMSC_lengthInfo = HexToNum(PDUString.substring(0, 2));
+	var SMSC_info = PDUString.substring(2, 2 + (SMSC_lengthInfo * 2));
+	var SMSC_TypeOfAddress = SMSC_info.substring(0, 2);
+	var SMSC_Number = SMSC_info.substring(2, 2 + (SMSC_lengthInfo * 2));
+
+
+	if (SMSC_lengthInfo != 0) {
+		SMSC_Number = semiOctetToString(SMSC_Number);
+
+		if ((SMSC_Number.substr(SMSC_Number.length - 1, 1) == 'F') || (SMSC_Number.substr(SMSC_Number.length - 1, 1) == 'f')) {
+			SMSC_Number = SMSC_Number.substring(0, SMSC_Number.length - 1);
+		}
+		if (SMSC_TypeOfAddress == 91) {
+			SMSC_Number = "+" + SMSC_Number;
+		}
+	}
+
+	var start_SMSDeleivery = (SMSC_lengthInfo * 2) + 2;
+	
+	start = start_SMSDeleivery;
+	var firstOctet_SMSDeliver = PDUString.substr(start, 2);
+	start = start + 2;
+	if ((HexToNum(firstOctet_SMSDeliver) & 0x20) == 0x20) {
+		out += "Receipt requested\n";
+	}
+	var DataHeader = 0;
+	if ((HexToNum(firstOctet_SMSDeliver) & 0x40) == 0x40) {
+		DataHeader = 1;
+		out += "Data Header\n";
+	}
+
+	if ((HexToNum(firstOctet_SMSDeliver) & 0x03) == 1 || (HexToNum(firstOctet_SMSDeliver) & 0x03) == 3) // Transmit Message
+	{
+		if ((HexToNum(firstOctet_SMSDeliver) & 0x03) == 3) {
+			out = "Unknown Message\nTreat as Deliver\n";
+		}
+		var MessageReference = HexToNum(PDUString.substr(start, 2));
+		start = start + 2;
+
+		var sender_addressLength = HexToNum(PDUString.substr(start, 2));
+		if (sender_addressLength % 2 != 0) {
+			sender_addressLength += 1;
+		}
+		start = start + 2;
+		
+		var sender_typeOfAddress = PDUString.substr(start, 2);
+		start = start + 2
+
+		var sender_number = semiOctetToString(PDUString.substring(start, start + sender_addressLength));
+
+		if ((sender_number.substr(sender_number.length - 1, 1) == 'F') || (sender_number.substr(sender_number.length - 1, 1) == 'f')) {
+			sender_number = sender_number.substring(0, sender_number.length - 1);
+		}
+		if (sender_typeOfAddress == 91) {
+			sender_number = "+" + sender_number;
+		}
+		start += sender_addressLength;
+
+		var tp_PID = PDUString.substr(start, 2);
+		start += 2;
+
+		var tp_DCS = PDUString.substr(start, 2);
+		var tp_DCS_desc = tpDCSMeaning(tp_DCS);
+		start += 2;
+
+		var ValidityPeriod;
+		switch ((HexToNum(firstOctet_SMSDeliver) & 0x18)) {
+			case 0:
+				ValidityPeriod = "Not Present";
+				break;
+			case 0x10:
+				ValidityPeriod = "Rel " + cValid(HexToNum(PDUString.substr(start, 2)));
+				start += 2;
+				break;
+			case 0x08:
+				ValidityPeriod = "Enhanced - Not Decoded";
+				start += 14;
+				break;
+			case 0x18:
+				ValidityPeriod = "Absolute - Not Decoded";
+				start += 14;
+				break;
+		}
+
+		var messageLength = HexToNum(PDUString.substr(start, 2));
+		start += 2;
+		var bitSize = DCS_Bits(tp_DCS);
+		var userData = "Undefined format";
+		if (bitSize == 7) {
+			userData = getUserMessage(PDUString.substr(start, PDUString.length - start), messageLength);
+		} else if (bitSize == 8) {
+			userData = getUserMessage8(PDUString.substr(start, PDUString.length - start), messageLength);
+		} else if (bitSize == 16) {
+			userData = getUserMessage16(PDUString.substr(start, PDUString.length - start), messageLength);
+		}
+		userData = userData.substr(0, messageLength);
+		if (bitSize == 16) {
+			messageLength /= 2;
+		}
+		out += "SMSC#" + SMSC_Number + "\nReceipient:" + sender_number + "\nValidity:" + ValidityPeriod + "\nTP_PID:" + tp_PID + "\nTP_DCS:" + tp_DCS + "\nTP_DCS-popis:" + tp_DCS_desc + "\n" + userData + "\nLength:" + messageLength;
+	} else
+	if ((HexToNum(firstOctet_SMSDeliver) & 0x03) == 0) // Receive Message
+	{
+
+		var sender_addressLength = HexToNum(PDUString.substr(start, 2));
+		start = start + 2;
+		var sender_typeOfAddress = PDUString.substr(start, 2);
+		start = start + 2
+		var sender_number;
+		if (sender_typeOfAddress == "D0") {
+			_sl = sender_addressLength;
+			if (sender_addressLength % 2 != 0) {
+				sender_addressLength += 1;
+			}
+			sender_number = getUserMessage(PDUString.substring(start, start + sender_addressLength), parseInt(sender_addressLength / 2 * 8 / 7));
+		} else {
+
+			if (sender_addressLength % 2 != 0) {
+				sender_addressLength += 1;
+			}
+
+			sender_number = semiOctetToString(PDUString.substring(start, start + sender_addressLength));
+
+			if ((sender_number.substr(sender_number.length - 1, 1) == 'F') || (sender_number.substr(sender_number.length - 1, 1) == 'f')) {
+				sender_number = sender_number.substring(0, sender_number.length - 1);
+			}
+			if (sender_typeOfAddress == 91) {
+				sender_number = "+" + sender_number;
+			}
+		}
+		start += sender_addressLength;
+		var tp_PID = PDUString.substr(start, 2);
+		start += 2;
+		var tp_DCS = PDUString.substr(start, 2);
+		var tp_DCS_desc = tpDCSMeaning(tp_DCS);
+		start += 2;
+		var timeStamp = semiOctetToString(PDUString.substr(start, 14));
+
+		var year = timeStamp.substring(0, 2);
+		var month = timeStamp.substring(2, 4);
+		var day = timeStamp.substring(4, 6);
+		var hours = timeStamp.substring(6, 8);
+		var minutes = timeStamp.substring(8, 10);
+		var seconds = timeStamp.substring(10, 12);
+
+		timeStamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " GMT ?"; //+" + timezone/4;
+		start += 14;
+		var messageLength = HexToNum(PDUString.substr(start, 2));
+		start += 2;
+
+		var bitSize = DCS_Bits(tp_DCS);
+		var userData = "Undefined format";
+		if (bitSize == 7) {
+			userData = getUserMessage(PDUString.substr(start, PDUString.length - start), messageLength);
+		} else if (bitSize == 8) {
+			userData = getUserMessage8(PDUString.substr(start, PDUString.length - start), messageLength);
+		} else if (bitSize == 16) {
+			userData = getUserMessage16(PDUString.substr(start, PDUString.length - start), messageLength);
+		}
+
+		userData = userData.substr(0, messageLength);
+		if (bitSize == 16) {
+			messageLength /= 2;
+		}
+
+		out += "SMSC#" + SMSC_Number + "\nSender:" + sender_number + "\nTimeStamp:" + timeStamp + "\nTP_PID:" + tp_PID + "\nTP_DCS:" + tp_DCS + "\nTP_DCS-popis:" + tp_DCS_desc + "\n" + userData + "\nLength:" + messageLength;
+	} else {
+		out = "Status Report\n";
+
+		var MessageReference = HexToNum(PDUString.substr(start, 2)); // ??? Correct this name
+		start = start + 2;
+		var sender_addressLength = HexToNum(PDUString.substr(start, 2));
+		if (sender_addressLength % 2 != 0) {
+			sender_addressLength += 1;
+		}
+		start = start + 2;
+		var sender_typeOfAddress = PDUString.substr(start, 2);
+		start = start + 2
+		var sender_number = semiOctetToString(PDUString.substring(start, start + sender_addressLength));
+
+		if ((sender_number.substr(sender_number.length - 1, 1) == 'F') || (sender_number.substr(sender_number.length - 1, 1) == 'f')) {
+			sender_number = sender_number.substring(0, sender_number.length - 1);
+		}
+		if (sender_typeOfAddress == 91) {
+			sender_number = "+" + sender_number;
+		}
+		start += sender_addressLength;
+
+		var timeStamp = semiOctetToString(PDUString.substr(start, 14));
+
+		var year = timeStamp.substring(0, 2);
+		var month = timeStamp.substring(2, 4);
+		var day = timeStamp.substring(4, 6);
+		var hours = timeStamp.substring(6, 8);
+		var minutes = timeStamp.substring(8, 10);
+		var seconds = timeStamp.substring(10, 12);
+		var timezone = timeStamp.substring(12, 14);
+
+		timeStamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " GMT +" + timezone / 4;
+		start += 14;
+
+		var timeStamp2 = semiOctetToString(PDUString.substr(start, 14));
+		var year2 = timeStamp2.substring(0, 2);
+		var month2 = timeStamp2.substring(2, 4);
+		var day2 = timeStamp2.substring(4, 6);
+		var hours2 = timeStamp2.substring(6, 8);
+		var minutes2 = timeStamp2.substring(8, 10);
+		var seconds2 = timeStamp2.substring(10, 12);
+		var timezone2 = timeStamp.substring(12, 14);
+
+		timeStamp2 = day2 + "/" + month2 + "/" + year2 + " " + hours2 + ":" + minutes2 + ":" + seconds2 + " GMT +" + timezone2 / 4;
+		start += 14;
+		var mStatus = PDUString.substr(start, 2);
+		out += "SMSC#\n" + SMSC_Number + "\nSender:\n" + sender_number + "\nMessage Ref#:\n" + MessageReference + "\nTimeStamp:\n" + timeStamp + "\nTimeStamp2:\n" + timeStamp2 + "\nStatus Byte: " + mStatus;
+	}
+
+	return out;
+}
