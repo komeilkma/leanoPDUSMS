@@ -379,7 +379,7 @@ function getPDUMetaInfo(inp) {
 			if (sender_addressLength % 2 != 0) {
 				sender_addressLength += 1;
 			}
-			sender_number = getUserMessage(PDUString.substring(start, start + sender_addressLength), parseInt(sender_addressLength / 2 * 8 / 7));
+			sender_number = getUserMessage(PDUString.substring(start, start + sender_addressLength), parseInt(_sl / 2 * 8 / 7));
 		} else {
 
 			if (sender_addressLength % 2 != 0) {
