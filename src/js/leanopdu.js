@@ -364,7 +364,17 @@ function getPDUMetaInfo(inp) {
 		if (bitSize == 16) {
 			messageLength /= 2;
 		}
-		out += "SMSC#" + SMSC_Number + "\nReceipient:" + sender_number + "\nValidity:" + ValidityPeriod + "\nTP_PID:" + tp_PID + "\nTP_DCS:" + tp_DCS + "\nTP_DCS-popis:" + tp_DCS_desc + "\n" + userData + "\nLength:" + messageLength;
+		out = {
+		"SMSC": SMSC_Number,
+		"Receipient": sender_number,
+		"Validity": ValidityPeriod,
+		"TP_PID": tp_PID,
+		"TP_DCS": tp_DCS,
+		"TP_DCS-popis": tp_DCS_desc,
+		"userData": userData,
+		"messageLength": messageLength,
+		}
+		out=JSON.stringify(obj);
 	} else
 	if ((HexToNum(firstOctet_SMSDeliver) & 0x03) == 0) // Receive Message
 	{
@@ -429,8 +439,17 @@ function getPDUMetaInfo(inp) {
 		if (bitSize == 16) {
 			messageLength /= 2;
 		}
-
-		out += "SMSC#" + SMSC_Number + "\nSender:" + sender_number + "\nTimeStamp:" + timeStamp + "\nTP_PID:" + tp_PID + "\nTP_DCS:" + tp_DCS + "\nTP_DCS-popis:" + tp_DCS_desc + "\n" + userData + "\nLength:" + messageLength;
+		out = {
+		"SMSC": SMSC_Number,
+		"Sender": sender_number,
+		"TimeStamp": timeStamp,
+		"TP_PID": tp_PID,
+		"TP_DCS": tp_DCS,
+		"TP_DCS-popis": tp_DCS_desc,
+		"userData": userData,
+		"messageLength": messageLength,
+		}
+		out=JSON.stringify(out);
 	} else {
 		out = "Status Report\n";
 
@@ -478,7 +497,15 @@ function getPDUMetaInfo(inp) {
 		timeStamp2 = day2 + "/" + month2 + "/" + year2 + " " + hours2 + ":" + minutes2 + ":" + seconds2 + " GMT +" + timezone2 / 4;
 		start += 14;
 		var mStatus = PDUString.substr(start, 2);
-		out += "SMSC#\n" + SMSC_Number + "\nSender:\n" + sender_number + "\nMessage Ref#:\n" + MessageReference + "\nTimeStamp:\n" + timeStamp + "\nTimeStamp2:\n" + timeStamp2 + "\nStatus Byte: " + mStatus;
+		out = {
+		"SMSC": SMSC_Number,
+		"Sender": sender_number,
+		"Message Ref": MessageReference,
+		"TimeStamp": timeStamp,
+		"TimeStamp2": timeStamp2,
+		"Status Byte": mStatus,
+		}
+		out=JSON.stringify(out);
 	}
 
 	return out;
