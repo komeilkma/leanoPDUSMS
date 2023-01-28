@@ -483,6 +483,12 @@ function getPDUMetaInfo(inp) {
 		var timezone = timeStamp.substring(12, 14);
 
 		timeStamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " GMT +" + timezone / 4;
+		timeStamp = {
+		"day":	day,
+		"month": month,
+			
+			
+		}
 		start += 14;
 
 		var timeStamp2 = semiOctetToString(PDUString.substr(start, 14));
