@@ -3,7 +3,7 @@
 
 sevenbitdefault = new Array('@', '�', '$', '�', '�', '�', '�', '�', '�', '�', '\n', '�', '�', '\r', '�', '�', '\u0394', '_', '\u03a6', '\u0393', '\u039b', '\u03a9', '\u03a0', '\u03a8', '\u03a3', '\u0398', '\u039e', '�', '�', '�', '�', '�', ' ', '!', '"', '#', '�', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '�', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '�', '�', '�', '�', '�', '�', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '�', '�', '�', '�', '�');
 var calculation = "";
-var maxkeys = 160;
+var maxkeys = 70;
 var alerted = false;
 
 function binToInt(x) {
@@ -513,6 +513,16 @@ function getPDUMetaInfo(inp) {
 
 
 function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt) {
+	
+   if (inpString.length > maxkeys)
+   {
+	   var error = {
+		   "code":"422",
+		   "message":"InvalidArgumentException",
+	   }
+	   error=JSON.stringify(error);
+     return error;
+   }else {
     var bitSize = size[0].value * size[0].checked | size[1].value * size[1].checked | size[2].value * size[2].checked;
     var octetFirst = "";
     var octetSecond = "";
@@ -591,6 +601,7 @@ function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, re
     } else if (bitSize == 16) {
         DATA_ENCODING = "08";
     }
+	
     var VALID_PERIOD = "";
     if (document.pduToStringForm.vFlag.checked) {
         VALID_PERIOD = intToHex(valid);
@@ -645,4 +656,9 @@ function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, re
     pduoutput = JSON.stringify(pduoutput);
 
     return pduoutput;
+	
+   }
+   
 }
+
+
