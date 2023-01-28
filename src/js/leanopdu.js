@@ -1,6 +1,5 @@
 /* Copyright (C) Komeil Majidi. */
 /* Love pure js more */
-
 sevenbitdefault = new Array('@', '�', '$', '�', '�', '�', '�', '�', '�', '�', '\n', '�', '�', '\r', '�', '�', '\u0394', '_', '\u03a6', '\u0393', '\u039b', '\u03a9', '\u03a0', '\u03a8', '\u03a3', '\u0398', '\u039e', '�', '�', '�', '�', '�', ' ', '!', '"', '#', '�', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '�', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '�', '�', '�', '�', '�', '�', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '�', '�', '�', '�', '�');
 var calculation = "";
 var maxkeys = 70;
@@ -512,153 +511,265 @@ function getPDUMetaInfo(inp) {
 
 
 
-function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt) {
-	
-   if (inpString.length > maxkeys)
-   {
-	   var error = {
-		   "code":"422",
-		   "message":"InvalidArgumentException",
-	   }
-	   error=JSON.stringify(error);
-     return error;
-   }else {
-    var bitSize = size[0].value * size[0].checked | size[1].value * size[1].checked | size[2].value * size[2].checked;
-    var octetFirst = "";
-    var octetSecond = "";
-    var output = "";
-    var SMSC_INFO_LENGTH = 0;
-    var SMSC_LENGTH = 0;
-    var SMSC_NUMBER_FORMAT = "";
-    var SMSC = "";
-    if (smscNumber != 0) {
-        SMSC_NUMBER_FORMAT = "81";
-        if (smscNumber.substr(0, 1) == '+') {
-            SMSC_NUMBER_FORMAT = "91";
-            smscNumber = smscNumber.substr(1);
-        } else if (smscNumber.substr(0, 1) != '0') {
-            SMSC_NUMBER_FORMAT = "91";
-        }
+function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag) {
 
-        if (smscNumber.length % 2 != 0) {
-            smscNumber += "F";
+    if (inpString.length > maxkeys) {
+        var error = {
+            "code": "422",
+            "message": "InvalidArgumentException",
         }
-        SMSC = semiOctetToString(smscNumber);
-        SMSC_INFO_LENGTH = ((SMSC_NUMBER_FORMAT + "" + SMSC).length) / 2;
-        SMSC_LENGTH = SMSC_INFO_LENGTH;
-
-    }
-    if (SMSC_INFO_LENGTH < 10) {
-        SMSC_INFO_LENGTH = "0" + SMSC_INFO_LENGTH;
-    }
-    var firstOctet;
-
-    if (receipt.checked) {
-        if (document.pduToStringForm.vFlag.checked) {
-            firstOctet = "3100";
-        } else {
-            firstOctet = "2100";
-        }
+        error = JSON.stringify(error);
+        return error;
     } else {
-        if (document.pduToStringForm.vFlag.checked) {
-            firstOctet = "1100";
-        } else {
-            firstOctet = "0100";
-        }
-    }
-
-    var REIVER_NUMBER_FORMAT = "81";
-    if (phoneNumber.substr(0, 1) == '+') {
-        REIVER_NUMBER_FORMAT = "91";
-        phoneNumber = phoneNumber.substr(1);;
-    } else if (phoneNumber.substr(0, 1) != '0') {
-        REIVER_NUMBER_FORMAT = "91";
-    }
-    var REIVER_NUMBER_LENGTH = intToHex(phoneNumber.length);
-    if (phoneNumber.length % 2 != 0) {
-        phoneNumber += "F";
-    }
-    var REIVER_NUMBER = semiOctetToString(phoneNumber);
-    var PROTO_ID = "00";
-    var DCS = 0;
-    if (mclass != -1) {
-        DCS = mclass | 0x10;
-    }
-    switch (bitSize) {
-        case 7:
-            break;
-        case 8:
-            DCS = DCS | 4;
-            break;
-        case 16:
-            DCS = DCS | 8;
-            break;
-    }
-
-    var DATA_ENCODING = "00";
-    if (bitSize == 8) {
-        DATA_ENCODING = "04";
-    } else if (bitSize == 16) {
-        DATA_ENCODING = "08";
-    }
-	
-    var VALID_PERIOD = "";
-    if (document.pduToStringForm.vFlag.checked) {
-        VALID_PERIOD = intToHex(valid);
-    }
-    var userDataSize;
-    if (bitSize == 7) {
-        userDataSize = intToHex(inpString.length);
-
-        for (var i = 0; i <= inpString.length; i++) {
-            if (i == inpString.length) {
-                if (octetSecond != "") {
-                    output = output + "" + (intToHex(binToInt(octetSecond)));
-                }
-                break;
+        var bitSize = size;
+        var octetFirst = "";
+        var octetSecond = "";
+        var output = "";
+        var SMSC_INFO_LENGTH = 0;
+        var SMSC_LENGTH = 0;
+        var SMSC_NUMBER_FORMAT = "";
+        var SMSC = "";
+        if (smscNumber != 0) {
+            SMSC_NUMBER_FORMAT = "81";
+            if (smscNumber.substr(0, 1) == '+') {
+                SMSC_NUMBER_FORMAT = "91";
+                smscNumber = smscNumber.substr(1);
+            } else if (smscNumber.substr(0, 1) != '0') {
+                SMSC_NUMBER_FORMAT = "91";
             }
-            var current = intToBin(getSevenBit(inpString.charAt(i)), 7);
 
-            var currentOctet;
-            if (i != 0 && i % 8 != 0) {
-                octetFirst = current.substring(7 - (i) % 8);
-                currentOctet = octetFirst + octetSecond;
+            if (smscNumber.length % 2 != 0) {
+                smscNumber += "F";
+            }
+            SMSC = semiOctetToString(smscNumber);
+            SMSC_INFO_LENGTH = ((SMSC_NUMBER_FORMAT + "" + SMSC).length) / 2;
+            SMSC_LENGTH = SMSC_INFO_LENGTH;
 
-                output = output + "" + (intToHex(binToInt(currentOctet)));
-                octetSecond = current.substring(0, 7 - (i) % 8);
+        }
+        if (SMSC_INFO_LENGTH < 10) {
+            SMSC_INFO_LENGTH = "0" + SMSC_INFO_LENGTH;
+        }
+        var firstOctet;
+
+        if (receipt == 1 ) {
+            if (vFlag == 1) {
+                firstOctet = "3100";
             } else {
-                octetSecond = current.substring(0, 7 - (i) % 8);
+                firstOctet = "2100";
+            }
+        } else {
+            if (vFlag == 1) {
+                firstOctet = "1100";
+            } else {
+                firstOctet = "0100";
             }
         }
-    } else if (bitSize == 8) {
-        userDataSize = intToHex(inpString.length);
-        var CurrentByte = 0;
-        for (var i = 0; i < inpString.length; i++) {
-            CurrentByte = getEightBit(inpString.charCodeAt(i));
-            output = output + "" + (ToHex(CurrentByte));
-        }
-    } else if (bitSize == 16) {
-        userDataSize = intToHex(inpString.length * 2);
-        var myChar = 0;
-        for (var i = 0; i < inpString.length; i++) {
-            myChar = get16Bit(inpString.charCodeAt(i));
-            output = output + "" + (ToHex((myChar & 0xff00) >> 8)) + (ToHex(myChar & 0xff));
-        }
-    }
-    var header = SMSC_INFO_LENGTH + SMSC_NUMBER_FORMAT + SMSC + firstOctet + REIVER_NUMBER_LENGTH + REIVER_NUMBER_FORMAT + REIVER_NUMBER + PROTO_ID + DATA_ENCODING + VALID_PERIOD + userDataSize;
-    var PDU = header + output;
-    var AT = "AT+CMGS=" + (PDU.length / 2 - SMSC_LENGTH - 1);
 
-    var pduoutput = {
-        "ATCMD": AT,
-        "PDU": PDU,
-    }
-    pduoutput = JSON.stringify(pduoutput);
+        var REIVER_NUMBER_FORMAT = "81";
+        if (phoneNumber.substr(0, 1) == '+') {
+            REIVER_NUMBER_FORMAT = "91";
+            phoneNumber = phoneNumber.substr(1);;
+        } else if (phoneNumber.substr(0, 1) != '0') {
+            REIVER_NUMBER_FORMAT = "91";
+        }
+        var REIVER_NUMBER_LENGTH = intToHex(phoneNumber.length);
+        if (phoneNumber.length % 2 != 0) {
+            phoneNumber += "F";
+        }
+        var REIVER_NUMBER = semiOctetToString(phoneNumber);
+        var PROTO_ID = "00";
+        var DCS = 0;
+        if (mclass != -1) {
+            DCS = mclass | 0x10;
+        }
+        switch (bitSize) {
+            case 7:
+                break;
+            case 8:
+                DCS = DCS | 4;
+                break;
+            case 16:
+                DCS = DCS | 8;
+                break;
+        }
 
-    return pduoutput;
-	
-   }
-   
+        var DATA_ENCODING = intToHex(DCS);
+
+        var VALID_PERIOD = "";
+        if (vFlag == 1) {
+            VALID_PERIOD = intToHex(valid);
+        }
+        var userDataSize;
+        if (bitSize == 7) {
+            userDataSize = intToHex(inpString.length);
+
+            for (var i = 0; i <= inpString.length; i++) {
+                if (i == inpString.length) {
+                    if (octetSecond != "") {
+                        output = output + "" + (intToHex(binToInt(octetSecond)));
+                    }
+                    break;
+                }
+                var current = intToBin(getSevenBit(inpString.charAt(i)), 7);
+
+                var currentOctet;
+                if (i != 0 && i % 8 != 0) {
+                    octetFirst = current.substring(7 - (i) % 8);
+                    currentOctet = octetFirst + octetSecond;
+
+                    output = output + "" + (intToHex(binToInt(currentOctet)));
+                    octetSecond = current.substring(0, 7 - (i) % 8);
+                } else {
+                    octetSecond = current.substring(0, 7 - (i) % 8);
+                }
+            }
+        } else if (bitSize == 8) {
+            userDataSize = intToHex(inpString.length);
+            var CurrentByte = 0;
+            for (var i = 0; i < inpString.length; i++) {
+                CurrentByte = getEightBit(inpString.charCodeAt(i));
+                output = output + "" + (ToHex(CurrentByte));
+            }
+        } else if (bitSize == 16) {
+            userDataSize = intToHex(inpString.length * 2);
+            var myChar = 0;
+            for (var i = 0; i < inpString.length; i++) {
+                myChar = get16Bit(inpString.charCodeAt(i));
+                output = output + "" + (ToHex((myChar & 0xff00) >> 8)) + (ToHex(myChar & 0xff));
+            }
+        }
+        var header = SMSC_INFO_LENGTH + SMSC_NUMBER_FORMAT + SMSC + firstOctet + REIVER_NUMBER_LENGTH + REIVER_NUMBER_FORMAT + REIVER_NUMBER + PROTO_ID + DATA_ENCODING + VALID_PERIOD + userDataSize;
+        var PDU = header + output;
+        var AT = "AT+CMGS=" + (PDU.length / 2 - SMSC_LENGTH - 1);
+
+        var pduoutput = {
+            "ATCMD": AT,
+            "PDU": PDU,
+        }
+        pduoutput = JSON.stringify(pduoutput);
+
+        return pduoutput;
+
+    }
+
 }
 
 
+function tpDCSMeaning(tp_DCS) {
+    var tp_DCS_desc = tp_DCS;
+    var pomDCS = HexToNum(tp_DCS);
+    switch (pomDCS & 192) {
+        case 0:
+            if (pomDCS & 32) {
+                tp_DCS_desc = "Compressed Text\n";
+            } else {
+                tp_DCS_desc = "Uncompressed Text\n";
+            }
+            if (!(pomDCS & 16)) {
+                tp_DCS_desc += "No class\n";
+            } else {
+                tp_DCS_desc += "class:";
+
+                switch (pomDCS & 3) {
+                    case 0:
+                        tp_DCS_desc += "0\n";
+                        break;
+                    case 1:
+                        tp_DCS_desc += "1\n";
+                        break;
+                    case 2:
+                        tp_DCS_desc += "2\n";
+                        break;
+                    case 3:
+                        tp_DCS_desc += "3\n";
+                        break;
+                }
+            }
+            tp_DCS_desc += "Alphabet:";
+            switch (pomDCS & 12) {
+                case 0:
+                    tp_DCS_desc += "Default\n";
+                    break;
+                case 4:
+                    tp_DCS_desc += "8bit\n";
+                    break;
+                case 8:
+                    tp_DCS_desc += "UCS2(16)bit\n";
+                    break;
+                case 12:
+                    tp_DCS_desc += "Reserved\n";
+                    break;
+            }
+            break;
+        case 64:
+        case 128:
+            tp_DCS_desc = "Reserved coding group\n";
+            break;
+        case 192:
+            switch (pomDCS & 0x30) {
+                case 0:
+                    tp_DCS_desc = "Message waiting group\n";
+                    tp_DCS_desc += "Discard\n";
+                    break;
+                case 0x10:
+                    tp_DCS_desc = "Message waiting group\n";
+                    tp_DCS_desc += "Store Message. Default Alphabet\n";
+                    break;
+                case 0x20:
+                    tp_DCS_desc = "Message waiting group\n";
+                    tp_DCS_desc += "Store Message. UCS2 Alphabet\n";
+                    break;
+                case 0x30:
+                    tp_DCS_desc = "Data coding message class\n";
+                    if (pomDCS & 0x4) {
+                        tp_DCS_desc += "Default Alphabet\n";
+                    } else {
+                        tp_DCS_desc += "8 bit Alphabet\n";
+                    }
+                    break;
+            }
+            break;
+
+    }
+
+    return (tp_DCS_desc);
+}
+
+function DCS_Bits(tp_DCS) {
+    var AlphabetSize = 7;
+    var pomDCS = HexToNum(tp_DCS);
+    switch (pomDCS & 192) {
+        case 0:
+            if (pomDCS & 32) {
+                tp_DCS_desc = "Compressed Text\n";
+            } else {
+                tp_DCS_desc = "Uncompressed Text\n";
+            }
+            switch (pomDCS & 12) {
+                case 4:
+                    AlphabetSize = 8;
+                    break;
+                case 8:
+                    AlphabetSize = 16;
+                    break;
+            }
+            break;
+        case 192:
+            switch (pomDCS & 0x30) {
+                case 0x20:
+                    AlphabetSize = 16;
+                    break;
+                case 0x30:
+                    if (pomDCS & 0x4) {
+                        ;
+                    } else {
+                        AlphabetSize = 8;
+                    }
+                    break;
+            }
+            break;
+
+    }
+
+    return (AlphabetSize);
+}
