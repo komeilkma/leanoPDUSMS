@@ -595,12 +595,7 @@ function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, re
             break;
     }
 
-    var DATA_ENCODING = "00";
-    if (bitSize == 8) {
-        DATA_ENCODING = "04";
-    } else if (bitSize == 16) {
-        DATA_ENCODING = "08";
-    }
+		var DATA_ENCODING = intToHex(DCS);
 	
     var VALID_PERIOD = "";
     if (document.pduToStringForm.vFlag.checked) {
