@@ -420,7 +420,15 @@ function getPDUMetaInfo(inp) {
 		var minutes = timeStamp.substring(8, 10);
 		var seconds = timeStamp.substring(10, 12);
 
-		timeStamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " GMT ?"; //+" + timezone/4;
+			timeStamp = {
+		"day":	day,
+		"month": month,
+		"year" :year,
+		"hours":hours,
+		"minutes":minutes,
+		"seconds":seconds,	
+		"GMT":timezone,	
+		}
 		start += 14;
 		var messageLength = HexToNum(PDUString.substr(start, 2));
 		start += 2;
@@ -482,12 +490,14 @@ function getPDUMetaInfo(inp) {
 		var seconds = timeStamp.substring(10, 12);
 		var timezone = timeStamp.substring(12, 14);
 
-		timeStamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " GMT +" + timezone / 4;
 		timeStamp = {
 		"day":	day,
 		"month": month,
-			
-			
+		"year" :year,
+		"hours":hours,
+		"minutes":minutes,
+		"seconds":seconds,	
+		"GMT":timezone ,	
 		}
 		start += 14;
 
