@@ -19,6 +19,41 @@ body {
 }
 
 
+.controls {
+  margin-left: 1rem;
+  margin-top: 0.8rem;
+  cursor: default;
+}
+.controls .icon {
+  height: 80%;
+  position: absolute;
+  margin: auto;
+  opacity: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.controls:hover .icon {
+  opacity: 0.5;
+}
+.controls--button {
+  border-radius: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.2rem;
+  position: relative;
+}
+.controls--button__close {
+  background: #fc635d;
+}
+.controls--button__min {
+  background: #fdbe41;
+}
+.controls--button__max {
+  background: #35cb4b;
+}
+
 .window__osx {
   border-radius: 4px;
   box-shadow: 0 0.8rem 3rem rgba(0, 0, 0, 0.5);
