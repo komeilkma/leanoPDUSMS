@@ -1,3 +1,6 @@
+.hide {
+  display: none;
+}
 
 body {
   display: flex;
@@ -10,35 +13,78 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button {
+  border: none;
+  outline: none;
+}
+
+ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+.window {
+  width: 48rem;
+  height: 27rem;
+  background: #3D4C5F;
+  position: relative;
+  overflow: hidden;
+}
+.window__osx {
+  border-radius: 4px;
+  box-shadow: 0 0.8rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+.window--header {
+  z-index: 1;
+  height: 3.1rem;
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: flex;
+}
+
+.controls {
+  margin-left: 1rem;
+  margin-top: 0.8rem;
+  cursor: default;
+}
+.controls .icon {
+  height: 80%;
+  position: absolute;
+  margin: auto;
+  opacity: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.controls:hover .icon {
+  opacity: 0.5;
+}
+.controls--button {
+  border-radius: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.2rem;
+  position: relative;
+}
+.controls--button__close {
+  background: #fc635d;
+}
+.controls--button__min {
+  background: #fdbe41;
+}
+.controls--button__max {
+  background: #35cb4b;
+}
+
 .window-content {
   width: 100%;
   height: 100%;
   display: flex;
   position: relative;
 }
-
-.welcome-screen {
-  margin: auto;
-  bottom: 2.4rem;
-  left: 0;
-  right: 0;
-  font-weight: 300;
-  width: 80%;
-  height: 18rem;
-  position: absolute;
-}
-
-.greeting {
-  margin: auto;
-  text-align: center;
-  font-weight: 300;
-  color: #f0f0f0;
-  transform: translateY(1rem);
-  opacity: 0;
-  -webkit-animation: greeting--animate-in 0.4s 2.4s both ease;
-          animation: greeting--animate-in 0.4s 2.4s both ease;
-}
-
 
 .intro-logo {
   position: absolute;
@@ -61,4 +107,324 @@ body {
   stroke-dashoffset: 600;
   -webkit-animation: intro--stroke-offset 1s both ease-in-out, intro--stroke-fill 0.4s 0.8s both ease;
           animation: intro--stroke-offset 1s both ease-in-out, intro--stroke-fill 0.4s 0.8s both ease;
+}
+
+@-webkit-keyframes intro--stroke-offset {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes intro--stroke-offset {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-webkit-keyframes intro--stroke-fill {
+  to {
+    fill: #00c99e;
+    stroke: #00c99e;
+  }
+}
+@keyframes intro--stroke-fill {
+  to {
+    fill: #00c99e;
+    stroke: #00c99e;
+  }
+}
+@-webkit-keyframes intro--logo-translate {
+  to {
+    transform: translateY(-10.3rem) scale(1);
+  }
+}
+@keyframes intro--logo-translate {
+  to {
+    transform: translateY(-10.3rem) scale(1);
+  }
+}
+.sync-title {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0.2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.sync-title:after {
+  -webkit-animation: sync-finish 0.2s 10s both ease;
+          animation: sync-finish 0.2s 10s both ease;
+  content: "SYNCHRONIZING";
+}
+
+.sync-indicator {
+  margin-left: auto;
+  margin-right: 1rem;
+  margin-top: 1rem;
+  display: flex;
+}
+
+.sync-progress {
+  height: 1.2rem;
+  transform: rotate(-90deg);
+  margin-left: 0.2rem;
+  -webkit-animation: sync-shrink 0.4s 10.1s both cubic-bezier(0.77, 0, 0.175, 1);
+          animation: sync-shrink 0.4s 10.1s both cubic-bezier(0.77, 0, 0.175, 1);
+}
+.sync-progress circle {
+  stroke-width: 4px;
+  stroke: #00c99e;
+  stroke-dasharray: 125;
+  stroke-dashoffset: 120;
+  -webkit-animation: sync-progress 10s linear both;
+          animation: sync-progress 10s linear both;
+}
+
+@-webkit-keyframes sync-progress {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sync-progress {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-webkit-keyframes sync-finish {
+  to {
+    content: "SYNCHRONIZED";
+    color: #00c99e;
+  }
+}
+@keyframes sync-finish {
+  to {
+    content: "SYNCHRONIZED";
+    color: #00c99e;
+  }
+}
+@-webkit-keyframes sync-shrink {
+  to {
+    transform: scale(0.5);
+  }
+}
+@keyframes sync-shrink {
+  to {
+    transform: scale(0.5);
+  }
+}
+.welcome-screen {
+  margin: auto;
+  bottom: 2.4rem;
+  left: 0;
+  right: 0;
+  font-weight: 300;
+  width: 80%;
+  height: 18rem;
+  position: absolute;
+}
+
+.greeting {
+  margin: auto;
+  text-align: center;
+  font-weight: 300;
+  color: #f0f0f0;
+  transform: translateY(1rem);
+  opacity: 0;
+  -webkit-animation: greeting--animate-in 0.4s 2.4s both ease;
+          animation: greeting--animate-in 0.4s 2.4s both ease;
+}
+
+.options {
+  display: flex;
+  margin-top: 0.8rem;
+}
+
+.option {
+  transform: translateY(1rem);
+  opacity: 0;
+  -webkit-animation: greeting--animate-in 0.4s 2.6s both ease;
+          animation: greeting--animate-in 0.4s 2.6s both ease;
+  list-style: none;
+  margin: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  flex: 1;
+  height: 12rem;
+  border-radius: 4px;
+  transition: border 0.1s ease;
+  border: 1px solid transparent;
+}
+.option label {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+.option:nth-child(1) {
+  -webkit-animation-delay: 2.6s;
+          animation-delay: 2.6s;
+}
+.option:nth-child(2) {
+  -webkit-animation-delay: 2.7s;
+          animation-delay: 2.7s;
+}
+.option:nth-child(3) {
+  -webkit-animation-delay: 2.8s;
+          animation-delay: 2.8s;
+}
+.option--title {
+  color: #ccc;
+  font-weight: 400;
+  font-size: 0.9rem;
+  padding: 0 1rem;
+  text-align: center;
+  transition: color 0.1s ease;
+}
+.option--icon {
+  width: 5rem;
+  margin: auto;
+  margin-top: 0.8rem;
+}
+.option--icon svg {
+  transition: fill 0.1s ease;
+  fill: #ccc;
+}
+.option:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.option:hover .option--title {
+  color: #fff;
+}
+.option:hover .option--icon svg {
+  fill: #fff;
+}
+
+@-webkit-keyframes greeting--animate-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes greeting--animate-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+input[type=checkbox]:checked + .section {
+  -webkit-animation: section--animate-in 0.4s both ease-in-out;
+          animation: section--animate-in 0.4s both ease-in-out;
+  pointer-events: all;
+}
+input[type=checkbox]:checked + .section ~ .intro-logo {
+  -webkit-animation: logo--to-topbar 0.4s forwards ease-in-out;
+          animation: logo--to-topbar 0.4s forwards ease-in-out;
+}
+
+.section {
+  opacity: 0;
+  background: #293340;
+  position: absolute;
+  height: 100%;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+  pointer-events: none;
+  color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+}
+.section p {
+  margin: 1rem auto;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.section--title {
+  color: #fff;
+  font-weight: 300;
+  text-align: center;
+}
+
+@-webkit-keyframes section--animate-in {
+  from {
+    transform: translateY(9rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes section--animate-in {
+  from {
+    transform: translateY(9rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@-webkit-keyframes logo--to-topbar {
+  from {
+    transform: translateY(-10.3rem) scale(1);
+  }
+  to {
+    transform: translateY(-15rem) scale(0.4);
+  }
+}
+@keyframes logo--to-topbar {
+  from {
+    transform: translateY(-10.3rem) scale(1);
+  }
+  to {
+    transform: translateY(-15rem) scale(0.4);
+  }
+}
+.form--input {
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-bottom: 2px solid #00c99e;
+  padding: 0.5rem 0;
+  width: 20rem;
+  flex: 2;
+}
+.form--input:focus {
+  outline: none;
+  border-bottom-color: #fdbe41;
+}
+.form--input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.form--input:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.form--input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form--button {
+  margin: 2rem auto;
+  padding: 0.7rem 1rem;
+  color: #fff;
+  background: #00c99e;
+  border-radius: 3px;
+}
+
+.form--group {
+  display: flex;
+  margin: 1rem auto;
+  width: 24rem;
+}
+.form--group strong {
+  flex: 0 0 5rem;
+  margin: auto;
+  margin-right: 2rem;
+  color: #00c99e;
+}
+.form--group span {
+  flex: 2;
 }
