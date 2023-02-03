@@ -1,0 +1,64 @@
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.window-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+}
+
+.welcome-screen {
+  margin: auto;
+  bottom: 2.4rem;
+  left: 0;
+  right: 0;
+  font-weight: 300;
+  width: 80%;
+  height: 18rem;
+  position: absolute;
+}
+
+.greeting {
+  margin: auto;
+  text-align: center;
+  font-weight: 300;
+  color: #f0f0f0;
+  transform: translateY(1rem);
+  opacity: 0;
+  -webkit-animation: greeting--animate-in 0.4s 2.4s both ease;
+          animation: greeting--animate-in 0.4s 2.4s both ease;
+}
+
+
+.intro-logo {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 9rem;
+  transform: translateY(-3.2rem) scale(1.4);
+  -webkit-animation: intro--logo-translate 0.8s 2s both cubic-bezier(0.77, 0, 0.175, 1);
+          animation: intro--logo-translate 0.8s 2s both cubic-bezier(0.77, 0, 0.175, 1);
+  z-index: 9;
+}
+.intro-logo path {
+  fill: transparent;
+  stroke: #fff;
+  stroke-width: 1px;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  -webkit-animation: intro--stroke-offset 1s both ease-in-out, intro--stroke-fill 0.4s 0.8s both ease;
+          animation: intro--stroke-offset 1s both ease-in-out, intro--stroke-fill 0.4s 0.8s both ease;
+}
