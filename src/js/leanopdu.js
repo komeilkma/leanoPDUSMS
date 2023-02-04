@@ -593,6 +593,24 @@ function tokenizer(e) {
 }
 
 
+function pduDecoder(e) {
+	var t, n = [],
+		r = splitter(e);
+	if (!r) return "Invalid PDU String!";
+	var a = tokenizer(r);
+	for (t = 0; t < a.length; ++t) n.push(a[t]());
+	return n
+}
+function splitter(e) {
+	var t, n = [];
+	for (t = 0; t < e.length; t += 2) {
+		var r = e.substr(t, 2);
+		if (!r.match(/^[0-9A-F]{2}$/i)) return null;
+		n.push(r)
+	}
+	return n
+}
+
 
 function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag) {
 
