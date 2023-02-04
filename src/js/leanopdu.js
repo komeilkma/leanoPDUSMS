@@ -541,6 +541,59 @@ function cleanInput(e) {
 	t.val(t.val().replace(/\s/g, ""))
 }
 
+function tokenizer(e) {
+	var t, n, r, a, s, o = [],
+		i = parseInt(e[0], 16);
+	if (i) e.slice(2, i + 1), e[1];
+	t = i + 1;
+	var u = tokens.ToM(e[t]);
+	if ("deliver" === u.type) {
+		t++, n = parseInt(e[t], 16), t++, n && (r = e.slice(t + 1, t + 1 + Math.ceil(n / 2)), a = e[t], o.push((function() {
+			return "" + tokens.Number(r, n, tokens.ToA(a))
+		})), t += 1 + Math.ceil(n / 2)), e[t], t++, s = tokens.DCS(e[t]), t++;
+		var l = e.slice(t, t + 7);
+		o.push((function() {
+			return "" + tokens.SCTS(l)
+		})), t += 6
+	} else if ("submit" === u.type) {
+		e[++t];
+		if (t++, n = parseInt(e[t], 16), t++, n && (r = e.slice(t + 1, t + 1 + Math.ceil(n / 2)), a = e[t], o.push((function() {
+				return "" + tokens.Number(r, n, tokens.ToA(a))
+			})), t += 1 + Math.ceil(n / 2)), e[t], t++, s = tokens.DCS(e[t]), u.TP_VPF) t++, "relative" === u.TP_VPF ? e[t] : u.TP_VPF.match(/^(absolute|relative)$/) && (e.slice(t, t + 7), t += 6)
+	}
+	t++;
+	var c = tokens.UDL(e[t], s.alphabet),
+		p = {},
+		h = {};
+	u.TP_UDHI && (t++, p = tokens.UDHL(e[t], s.alphabet),
+		t++, h = tokens.UDH(e.slice(t, t + p.length)), o.push((function() {
+			return "" + h.info
+		})), t += p.length - 1);
+	var d = ++t + c.octets - (p.length ? p.length + 1 : 0),
+		g = e.slice(t, d);
+	if (h.wap) {
+		var f = wapDecoder(g);
+		o.push((function() {
+			return "User Data\tWireless Session Protocol (WSP) / WBXML " + f
+		}))
+	} else if (o.push((function() {
+			return "" + tokens.UD(g, s.alphabet, p.padding, h.formatting)
+		})), d < e.length) {
+		o.push((function() {
+			return "VIOLATION\tPDU longer than expected!"
+		}));
+		var I = e.slice(t, e.length);
+		o.push((function() {
+			return "User Data /w additional stuff\t" + tokens.UD(I, s.alphabet, p.padding, h.formatting)
+		}))
+	} else d > e.length && o.push((function() {
+		return "VIOLATION\tPDU shorter than expected!"
+	}));
+	return o
+}
+
+
+
 function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag) {
 
     if (inpString.length > maxkeys) {
