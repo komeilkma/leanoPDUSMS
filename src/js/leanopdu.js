@@ -294,6 +294,14 @@ function semiOctetToString(inp) {
     return out;
 }
 
+
+function decode7Bit(e, t) {
+	var n, r, a, s = "",
+		o = "";
+	for (t && e.length && (s = (s = padwZeros(parseInt(e.shift(), 16).toString(2))).substring(0, s.length - t)); e.length || parseInt(s, 2);) r = (n = getChar(e, s))[0], s = n[1], "object" == typeof(a = gsm7bit[parseInt(r, 2)]) && (r = (n = getChar(e, s))[0], s = n[1], a = a[parseInt(r, 2)]), o += a || "";
+	return o
+}
+
 function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag) {
 
     if (inpString.length > maxkeys) {
