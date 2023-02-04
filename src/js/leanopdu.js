@@ -302,6 +302,93 @@ function decode7Bit(e, t) {
 	return o
 }
 
+
+function getChar(e, t) {
+	if (7 === t.length) return [t, ""];
+	var n = padwZeros(parseInt(e.shift(), 16).toString(2)),
+		r = t.length + 1;
+	return [n.substr(r) + t, t = n.substr(0, r)]
+}
+
+function reverse(e) {
+	return "string" == typeof e ? e.substr(1, 1) + e.substr(0, 1) : "00"
+}
+
+function padwZeros(e) {
+	for (; e.length < 8;) e = "0" + e;
+	return e
+}
+
+function wapDecoder(e) {
+	var t, n = 0,
+		r = [],
+		a = "";
+	r.push("WSP Transaction ID\t0x" + e[n]), n++, r.push("Type\t" + wapTokens.type(e[n])), n++;
+	var s = parseInt(e[n], 16);
+	for (n++, r.push("Wireless Session Protocol\t" + wapTokens.WSP(e.slice(n, n + s))), n += s, r.push("WAP Binary XML\t" + wapTokens.WBXML(e.slice(n))), t = 0; t < r.length; ++t) a += "<tr><td>" + r[t].replace(/\t/, "</td><td>") + "</td></tr>";
+	return a
+}
+
+
+var wapTokens = {
+	type: function(e) {
+		return 6 == e ? "Push" : "unknown"
+	},
+	WSP: function(e) {
+		for (var t, n, r, a = "", s = [], o = {}; e.length;) 0 === (n = parseInt(e.shift(), 16)) && o.octets && o.pos++, n > 0 && n < 32 ? (o.octets && s.push(o), o = {
+			key: "",
+			value: "",
+			pos: 0,
+			octets: n
+		}, 31 === n && (o.octets = parseInt(e.shift(), 16)), 0 === s.length && (o.key = "Content-Type")) : n > 31 && n < 128 ? (o.value += String.fromCharCode(n), o.pos++) : n > 127 && (1 === (r = 127 & n) ? o.value += "; charset=" : 48 === r ? o.value += "application/vnd.wap.slc" : 46 === r ? o.value += "application/vnd.wap.sic" : 106 === r && (o.value += "UTF-8"), o.pos++), o.pos >= o.octets && (s.push(o), o = {
+			key: "",
+			value: "",
+			pos: 0,
+			octets: 0
+		});
+		for (t = 0; t < s.length; t++) a += s[t].key + ": " + s[t].value;
+		return a
+	},
+	WBXML: function(e) {
+		var t, n = "";
+		for (t = 0; t < e.length; ++t) n += e[t];
+		if ($.ajax({
+				async: !1,
+				cache: !1,
+				data: {
+					octets: n
+				},
+				timeout: 1e3,
+				url: "wbxml.pl",
+				success: function(e) {
+					n = e.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;")
+				}
+			}), !n.match(/&/))
+			for (n += " (Could not be decoded, try ASCII decoding)"; e.length;) n += String.fromCharCode(parseInt(e.shift(), 16));
+		return n
+	}
+};
+
+function setForm() {
+	var e, t, n = document.location.search.substr(1).split("&"),
+		r = {},
+		a = /^TEXTAREA$/i,
+		s = /^INPUT$/i,
+		o = /^text$/i,
+		i = /^(checkbox|radio)$/i,
+		u = !1;
+	for (e = 0; e < n.length; ++e) t = n[e].split("="), r[t[0]] ? r[t[0]] = [r[t[0]], t[1]] : r[t[0]] = t[1];
+	for (e in r) r.hasOwnProperty(e) && $('[name="' + e + '"]').each((function() {
+		this.tagName.match(a) || this.tagName.match(s) && this.type.match(o) ? (this.value = r[e], u = !0) : this.tagName.match(s) && this.type.match(i) && this.value === r[e] && (this.checked = !0, $(this).change(), u = !0)
+	}));
+	return u
+}
+
+function cleanInput(e) {
+	var t = $(e);
+	t.val(t.val().replace(/\s/g, ""))
+}
+
 function stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag) {
 
     if (inpString.length > maxkeys) {
