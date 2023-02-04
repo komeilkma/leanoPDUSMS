@@ -295,6 +295,158 @@ function semiOctetToString(inp) {
 }
 
 
+var tokens = {
+	Number: function(e, t, n) {
+		var r, a = "";
+		if (n && 80 === n.ToN) a = decode7Bit(e);
+		else {
+			for (r = 0; r < e.length; ++r) a += reverse(e[r]);
+			if (a.match(/\D$/) || t && a.length > t) {
+				var s = /(.)$/.exec(a);
+				a = a.substring(0, a.length - 1), s && s[1] && "F" !== s[1] && (a += ' (VIOLATION: number not padded with "F" but with "' + s[1] + '"!)')
+			}
+		}
+		return a
+	},
+	ToA: function(e) {
+		var t = parseInt(e, 16),
+			n = 112 & t,
+			r = 15 & t,
+			a = "";
+		return a += 0 === n ? "Unknown type of address" : 16 === n ? "International number" : 32 === n ? "National number" : 48 === n ? "Network specific number" : 64 === n ? "Subscriber number" : 80 === n ? "Alphanumeric, (coded according to GSM TS 03.38 7-bit default alphabet)" : 96 === n ? "Abbreviated number" : 112 === n ? "Reserved for extension" : "Reserved type of address", a += ", ", a += 0 === r ? "Unknown" : 1 === r ? "ISDN/telephone numbering plan (E.164/E.163)" : 3 === r ? "IData numbering plan (X.121)" : 4 === r ? "Telex numbering plan" : 8 === r ? "National numbering plan" : 9 === r ? "Private numbering plan" : 10 === r ? "ERMES numbering plan (ETSI DE/PS 3 01-3)" : 15 === r ? "Reserved for extension" : "Reserved numbering plan", 0 == (128 & t) && (a += " (VIOLATION: Highest bit should always be set!)"), {
+			ToN: n,
+			NPI: r,
+			info: a
+		}
+	},
+	ToM: function(e) {
+		var t = parseInt(e, 16),
+			n = "",
+			r = [],
+			a = !1,
+			s = !1,
+			o = null,
+			i = !1;
+		if (0 == (1 & t) ? (n += "SMS-DELIVER", a = !0) : 1 == (1 & t) ? (n += "SMS-SUBMIT", s = !0) : console.debug(t, padwZeros(t.toString(2))), 128 & t && r.push("TP-RP (Reply path exists)"), 64 & t && (i = !0, r.push("TP-UDHI (User data header indicator)")), s) {
+			32 & t && r.push("TP-SRR (Status report request)");
+			var u = 24 & t,
+				l = "TP-VPF (Validity Period Format): ";
+			0 === u || (8 === u ? (o = "enhanced", r.push(l + "enhanced format")) : 16 === u ? (o = "relative", r.push(l + "relative format")) : 24 === u && (o = "absolute", r.push(l + "absolute format"))), 0 == (4 & t) && r.push("TP-RD (Reject duplicates)")
+		} else a && (32 & t && r.push("TP-SRI (Status report indication)"), 0 == (4 & t) && r.push("TP-MMS (More messages to send)"));
+		return r.length && (n += ", Flags: " + r.join(", ")), {
+			type: a ? "deliver" : s ? "submit" : "",
+			TP_UDHI: i,
+			TP_VPF: o,
+			info: n
+		}
+	},
+	PID: function(e) {
+		var t = parseInt(e, 16),
+			n = "",
+			r = 192 & t;
+		if (0 === r) {
+			var a = 31 & t;
+			32 & t ? (n += "Telematic interworking (Type: ", n += 0 === a ? "implicit" : 1 === a ? "telex" : 2 === a ? "group 3 telefax" : 3 === a ? "group 4 telefax" : 4 === a ? "voice telephone - speech conversion" : 5 === a ? "ERMES - European Radio Messaging System" : 6 === a ? "National Paging System" : 7 === a ? "Videotex - T.100/T.101" : 8 === a ? "teletex, carrier unspecified" : 9 === a ? "teletex, in PSPDN" : 10 === a ? "teletex, in CSPDN" : 11 === a ? "teletex, in analog PSTN" : 12 === a ? "teletex, in digital ISDN" : 13 === a ? "UCI - Universal Computer Interface, ETSI DE/PS 3 01-3" : 16 === a ? "message handling facility known to the SC" : 17 === a ? "public X.400-based message handling system" : 18 === a ? "Internet E-Mail" : a >= 24 && a <= 30 ? "SC specific value" : 31 === a ? "GSM mobile station" : "reserved", n += ")") : (n += "SME-to-SME protocol", a > 0 && (n += " (Unknown bitmask: " + a.toString(2) + "- in case of SMS-DELIVER these indicate the SM-AL protocol being used between the SME and the MS!)"))
+		} else if (64 === r) {
+			var s = 63 & t;
+			n += s >= 0 && s <= 7 ? "Short Message Type " + s : 31 === s ? "Return Call Message" : 61 === s ? "ME Data download" : 62 === s ? "ME De-personalization Short Message" : 63 === s ? "SIM Data download" : "reserved"
+		} else 128 === r ? n += "reserved" : 192 === r && (n += "SC specific use");
+		return n
+	},
+	DCS: function(e) {
+		var t = parseInt(e, 16),
+			n = "",
+			r = "default",
+			a = 240 & t;
+		if (a >= 0 && a <= 48) {
+			n += "General Data Coding groups, ", n += 32 & t ? "compressed" : "uncompressed", n += ", ";
+			var s = 12 & t;
+			0 === s ? n += "default alphabet" : 4 === s ? (n += "8 bit data", r = "8bit") : 8 === s ? (n += "UCS2 (16 bit)", r = "ucs2") : 12 === s && (n += "reserved alphabet")
+		} else a >= 64 && a <= 176 ? n += "Reserved coding groups" : 192 === a ? n += "Message Waiting Indication Group: Discard Message, " : 208 === a ? n += "Message Waiting Indication Group: Store Message, standard encoding, " : 224 === a ? n += "Message Waiting Indication Group: Store Message, UCS2 encoding, " : 240 === a && (n += "Data coding/message class, ", 8 & t && (n += "(VIOLATION: reserved bit set, but should not!), "), 4 & t ? (n += "8 bit data", r = "8bit") : n += "Default alphabet");
+		if (a >= 0 && a <= 48 || 240 === a) {
+			n += ", ", a >= 0 && a <= 48 && 0 == (16 & t) && (n += " no message class set (but given bits would be: ");
+			var o = 3 & t;
+			n += "Class " + o + " - ", 0 === o ? n += "immediate display" : 1 === o ? n += "ME specific" : 2 === o ? n += "SIM specific" : 3 === o && (n += "TE specific"), n += ")"
+		}
+		if (a >= 192 && a <= 224) {
+			n += 8 & t ? "Set Indication Active" : "Set Indication Inactive", n += ", ", 4 & t && (n += "(reserved bit set, but should not!), ");
+			var i = 3 & t;
+			0 === i ? n += "Voicemail Message Waiting" : 1 === i ? n += "Fax Message Waiting" : 2 === i ? n += "E-Mail Message Waiting" : 3 === i && (n += "Other Message Waiting (not yet standardized)")
+		}
+		return {
+			alphabet: r,
+			info: n
+		}
+	},
+	SCTS: function(e) {
+		var t;
+		for (t = 0; t < 7; ++t) e[t] = reverse(e[t]);
+		var n = "";
+		parseInt(e[0], 10) < 70 ? n += "20" : n += "19", n += e[0] + "-" + e[1] + "-" + e[2] + " " + e[3] + ":" + e[4] + ":" + e[5] + " GMT ";
+		var r = parseInt(e[6], 10);
+		return 128 & r ? (r &= 127, n += "-") : n += "+", n + r / 4
+	},
+	UDL: function(e, t) {
+		var n = parseInt(e, 16),
+			r = 0,
+			a = n;
+		return r = "default" === t ? Math.ceil(70 * n / 80) : n, "ucs2" === t && (a = r / 2), {
+			septets: n,
+			octets: r,
+			info: a + " characters, " + r + " bytes"
+		}
+	},
+	UDHL: function(e, t) {
+		var n = parseInt(e, 16),
+			r = 0;
+		if ("default" === t) {
+			var a = 8 * (n + 1);
+			r = 7 * Math.ceil(a / 7) - a
+		}
+		return {
+			length: n,
+			padding: r,
+			info: n + " bytes"
+		}
+	},
+	UDH: function(e) {
+		for (var t, n, r, a, s, o = [], i = {}, u = [], l = "", c = !1, p = !1, h = [], d = []; e.length;) {
+			var g = parseInt(e.shift(), 16);
+			void 0 === i.IEI ? i.IEI = g : void 0 === i.IEDL ? i.IEDL = g : (void 0 === i.IED && (i.IED = []), i.IED.push(g), i.IED.length >= i.IEDL && (o.push(i), i = {}))
+		}
+		for (t = 0; t < o.length; ++t) 5 === o[t].IEI ? (5505 === (n = 256 * o[t].IED[0] + o[t].IED[1]) ? n += " (Ring Tone)" : 5506 === n ? n += " (Operator Logo)" : 5507 === n ? n += " (Group Graphic - CLI Logo)" : 9200 === n ? n += " (Connectionless WAP browser proxy server)" : 9202 === n ? n += " (Secure connectionless WAP browser proxy server)" : 9203 === n ? n += " (Secure WAP Browser proxy server)" : 9204 === n ? n += " (vCard)" : 9205 === n ? n += " (vCalendar)" : 9206 === n ? n += " (Secure vCard)" : 9207 === n ? n += " (Secure vCalendar)" : c = !0, l = "WDP (Wireless Datagram Protocol): Destination port is " + n + ", source port is " + (256 * o[t].IED[2] + o[t].IED[3]), 4 !== o[t].IEDL && (l += " (VIOLATON: This Information Element should have exactly 4 bytes but says it has " + o[t].IEDL + " instead!)"), 4 !== o[t].IED.length && (l += " (VIOLATION: This Information Element should have exactly 4 bytes but actually has " + o[t].IED.length + " instead!)"), u.push(l)) : 0 === o[t].IEI ? (l = "Concatenated message: reference number " + o[t].IED[0] + ", part " + o[t].IED[2] + " of " + o[t].IED[1] + " parts", 3 !== o[t].IEDL && (l += " (VIOLATON: This Information Element should have exactly 3 bytes but says it has " + o[t].IEDL + " instead!)"), 3 !== o[t].IED.length && (l += " (VIOLATION: This Information Element should have exactly 3 bytes but actually has " + o[t].IED.length + " instead!)"), u.push(l)) : 10 === o[t].IEI && (p = !0, r = [], 1 == (3 & (a = o[t].IED[2])) ? r.push("text-align: center") : 2 == (3 & a) && r.push("text-align: right"), 4 == (12 & a) ? r.push("font-size: large") : 8 == (12 & a) && r.push("font-size: small"), 32 & a && r.push("font-style: italic"), 16 & a && r.push("font-weight: bold"), 64 & a && r.push("text-decoration: underline"), 128 & a && r.push("text-decoration: line-through"), (s = o[t].IED[3]) && (1 == (15 & s) ? r.push("color: darkGray") : 2 == (15 & s) ? r.push("color: darkRed") : 3 == (15 & s) ? r.push("color: GoldenRod") : 4 == (15 & s) ? r.push("color: darkGreen") : 5 == (15 & s) ? r.push("color: darkCyan") : 6 == (15 & s) ? r.push("color: darkBlue") : 7 == (15 & s) ? r.push("color: darkMagenta") : 8 == (15 & s) ? r.push("color: gray") : 9 == (15 & s) ? r.push("color: white") : 10 == (15 & s) ? r.push("color: red") : 11 == (15 & s) ? r.push("color: yellow") : 12 == (15 & s) ? r.push("color: green") : 13 == (15 & s) ? r.push("color: cyan") : 14 == (15 & s) ? r.push("color: blue") : 15 == (15 & s) && r.push("color: magenta"), 0 == (240 & s) ? r.push("background-color: black") : 16 == (240 & s) ? r.push("background-color: darkGray") : 32 == (240 & s) ? r.push("background-color: darkRed") : 48 == (240 & s) ? r.push("background-color: GoldenRod") : 64 == (240 & s) ? r.push("background-color: darkGreen") : 80 == (240 & s) ? r.push("background-color: darkCyan") : 96 == (240 & s) ? r.push("background-color: darkBlue") : 112 == (240 & s) ? r.push("background-color: darkMagenta") : 128 == (240 & s) ? r.push("background-color: gray") : 144 == (240 & s) ? r.push("background-color: white") : 160 == (240 & s) ? r.push("background-color: red") : 176 == (240 & s) ? r.push("background-color: yellow") : 192 == (240 & s) ? r.push("background-color: green") : 208 == (240 & s) ? r.push("background-color: cyan") : 224 == (240 & s) ? r.push("background-color: blue") : 240 == (240 & s) && r.push("background-color: magenta")), r.length ? (o[t].markupOpen = '<span style="' + r.join("; ") + '">', o[t].markupClose = "</span>") : (o[t].markupOpen = "", o[t].markupClose = ""), d.push(o[t]), h.push((function(e, t, n) {
+			t = t.substr(d[n].IED[0], d[n].IED[1]);
+			var r = new RegExp(t);
+			return e.replace(r, d[n].markupOpen + t + d[n].markupClose)
+		})));
+		return p && u.push("has EMS formatting"), {
+			wap: c,
+			formatting: h,
+			info: u.join("; ")
+		}
+	},
+	UD: function(e, t, n, r) {
+		var a, s, o = "",
+			i = 0;
+		if ("default" === t) o = decode7Bit(e, n);
+		else if ("ucs2" === t)
+			for (; e.length;) a = e.shift() + e.shift(), o += String.fromCharCode(parseInt(a, 16));
+		else
+			for (o += "(", o += "8bit" === t ? "unknown binary data" : "unrecognized alphpabet", o += ", try ASCII decoding) "; e.length;) o += String.fromCharCode(parseInt(e.shift(), 16));
+		if (r && r.length)
+			for (s = o, i = 0; i < r.length; i++) o = r[i](o, s, i);
+		return o
+	},
+	MR: function(e) {
+		return "00" === e ? "Mobile equipment sets reference number" : "0x" + e
+	},
+	VPrelative: function(e) {
+		var t = parseInt(e, 16),
+			n = "";
+		return t < 144 ? n = 5 * (t + 1) + " minutes" : t > 143 && t < 168 ? n = 30 * (t - 143) / 60 + 12 + " hours" : t > 167 && t < 197 ? n = t - 166 + " days" : t > 186 && (n = t - 192 + " weeks"), n
+	}
+};
+
 function decode7Bit(e, t) {
 	var n, r, a, s = "",
 		o = "";
