@@ -3,22 +3,36 @@ PDU management/encode/decode tool and management receiving/sending SMS from GSM/
 
 I thought to myself, why not create this project with the most basic tools?!
 
-#How it work
-###Server side
+## How it work
+
+### Server side
+
 The functions file can be used on the web server or as a contains user binaries
 
 It is possible to send the execution of functions as POST and call from CLI
-#####change_to_pdu
+
+##### change_to_pdu
+
 This function sets the preferred storage of the module on the SIM card and also sets the SMS receiving mode to the PDU.
+
 By executing this function once, AT commands are sent to the module
+
 `change_to_pdu <AT_device_name>`
-#####creat_sms_list
+
+##### creat_sms_list
+
 This function saves a list of received sms on a file called smslist
+
 in order and numbered
+
 `creat_sms_list <AT_device_name> <0 OR 1 for delete all SMS After save>`
-#####json_sms_pdu_list
+
+##### json_sms_pdu_list
+
 This function displays all received sms messages stored in the smslist file in JSON format
+
 `json_sms_pdu_list`
+
 
 Sample JSON output:
 ```json
@@ -41,9 +55,9 @@ Sample JSON output:
 }
 ```
 
-###PDU Encoder/Decoder Side
+### PDU Encoder/Decoder Side
 This section, developed with JS, allows to manage PDU encryption and decryption in web.
-#####PDU Decoder
+##### PDU Decoder
 
 Just send the PDU to the pduDecoder function
 It will give you a JSON response including the sender, date and time, concatenated message (if the SMS is multi-part) and SMS text.
@@ -54,18 +68,25 @@ Sample returned answer:
 ```json
  ['989120256967', '2023-02-07 08:48:38 GMT +3.5', 'Concatenated message: reference number 28, part 2 of 4 parts', 'ادانی که نسبت به درمان خود اقدام نکنند و گواهی تحت درمان نداشته باش']
 ```
-#####PDU Encoder
+##### PDU Encoder
+
 
 This function provides the possibility of making the sent message as a PDU
 An output from the PDU string and AT COMMAND will give you the length of the PDU string
 
 `stringToPDU(inpString, phoneNumber, smscNumber, size, mclass, valid, receipt,vFlag)`
 
+
 inpString : Message text
+
 phoneNumber: The number to which the message is sent
+
 smscNumber : short message service center
+
 size :  7 / 8 / 16 bit
+
 mclass : Message Class > none / 0 / 1/ 2 /3
+
 TODO ( valid, receipt,vFlag Compilition )
 
 Sample returned answer:
@@ -73,6 +94,7 @@ Sample returned answer:
 `{"ATCMD":"AT+CMGS=23","PDU":"0001000C9189190252967600000A00730061006C0061006D"}`
 
 
-###Simple Test
+### Simple Test
+
 
 ![Simpletest](images/pdu-test.png)
