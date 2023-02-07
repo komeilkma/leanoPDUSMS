@@ -599,6 +599,7 @@ function pduDecoder(e) {
 	if (!r) return "Invalid PDU String!";
 	var a = tokenizer(r);
 	for (t = 0; t < a.length; ++t) n.push(a[t]());
+	n = JSON.stringify(n);
 	return n
 }
 function splitter(e) {
