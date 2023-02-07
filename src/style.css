@@ -428,3 +428,26 @@ input[type=checkbox]:checked + .section ~ .intro-logo {
 .form--group span {
   flex: 2;
 }
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+input#phone {
+    width: 300px;
+    margin: auto;
+    margin-top: -10px;
+    margin-bottom: -10px;
+}
