@@ -38,3 +38,28 @@ function decodepduUI () {
 })
 	
 }
+
+
+function encodepduUI () {
+	
+	var encodetextarea = document.getElementById("encodetextarea").value;
+	var phone = document.getElementById("phone").value;
+	var result = stringToPDU(encodetextarea,phone,"","16",-1,0);
+	obj=JSON.parse(result)
+	Swal.fire({
+  icon: 'success',
+  title: 'Encoded PDU',
+  html:`<table>
+        <tbody>
+            <tr>
+                <td>`+obj["ATCMD"]+`</td>
+            </tr>
+			<tr>
+                <td>`+obj["PDU"]+`</td>
+            </tr>
+
+</tbody>
+</table>`
+})
+	
+}
