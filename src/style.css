@@ -444,3 +444,10 @@ td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
+input#phone {
+    width: 300px;
+    margin: auto;
+    margin-top: -10px;
+    margin-bottom: -10px;
+}
