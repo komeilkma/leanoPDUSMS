@@ -30,15 +30,18 @@
          <section class=section>
             <h1 class=section--title>Manual Encode PDU</h1>
             <p>Enter text Message for get ATCMD length and PDU
-            <div class=form--group><textarea cols=50 id=encodetextarea name=text rows=4></textarea>
+            <div class=form--group>
+		
+			<textarea cols=50 id=encodetextarea placeholder=text-message name=text rows=4></textarea>
             </div>
+				<input type=text id=phone placeholder=phonenumber />
             <button class=form--button onclick=encodepduUI()>Encode PDU</button>
          </section>
          <input class=hide id=Decoder type=checkbox>
          <section class=section>
             <h1 class=section--title>Manual Docode PDU</h1>
             <p>Enter PDU code received from LTE module in the box below
-            <div class=form--group><textarea cols=50 id=decodetextarea name=PDU rows=4></textarea>
+            <div class=form--group><textarea cols=50 placeholder=pdu-message id=decodetextarea name=PDU rows=4></textarea>
             </div>
             <button class=form--button onclick=decodepduUI()>Decode PDU</button>
          </section>
